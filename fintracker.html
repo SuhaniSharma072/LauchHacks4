@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Finance Tracker</title>
+    <link rel="stylesheet" href="fintracker.css" />
+    <meta charset="UTF-8" />
+    <script>
+      let balance = 0;
+      let transactions = [];
+
+      function updateDisplay() {
+        document.getElementById(
+          "balanceDisplay"
+        ).innerText = `$${balance.toFixed(2)}`;
+        const history = document.getElementById("transactionHistory");
+        history.innerHTML = "<h3>Your Money Story</h3>";
+
+        if (transactions.length === 0) {
+          history.innerHTML +=
+            "<p>Nothing here yet – but hey, everyone starts somewhere!</p>";
+          return;
+        }
+
+        transactions
+          .slice()
+          .reverse()
+          .forEach((t) => {
+            const type = t.amount > 0 ? "Money in" : "Money out";
+            history.innerHTML += `• ${type}: $${Math.abs(t.amount).toFixed(
+              2
+            )} – ${t.note}<br/>`;
+          });
+      }
+
+      function addTransaction(isDeposit) {
+        const amt = parseFloat(document.getElementById("amount").value);
+        const note = document.getElementById("note").value.trim();
+
+        if (isNaN(amt) || amt <= 0 || !note) {
+          alert("Oops! Make sure you've got both an amount and what it's for.");
+          return;
+        }
+
+        const signedAmt = isDeposit ? amt : -amt;
+        balance += signedAmt;
+        transactions.push({ amount: signedAmt, note });
+
+        document.getElementById("amount").value = "";
+        document.getElementById("note").value = "";
+        updateDisplay();
+      }
+    </script>
+  </head>
+  <body>
+    <header>
+      <div class="logo"><strong>DormDesk</strong></div>
+      <div class="top-bar">
+        <a href="index.html" class="top-link">Home</a>
+        <a href="tasktracker.html" class="top-link">Task Tracker</a>
+        <a href="coursetracker.html" class="top-link">Course Tracker</a>
+        <a href="fintracker.html" class="top-link">Finance Tracker</a>
+      </div>
+    </header>
+
+    <h1>Your Money</h1>
+    <p>
+      Look, managing money doesn't have to be scary or complicated. Just track
+      what comes in, what goes out, and boom – you'll actually know where you
+      stand. No more guessing, no more surprises when you check your account.
+      It's honestly that simple.
+    </p>
+
+    <div>
+      <h3>What You've Got Right Now</h3>
+      <p id="balanceDisplay">$0.00</p>
+    </div>
+
+    <div>
+      <h3>Log Something New</h3>
+      <input type="number" id="amount" placeholder="How much?" />
+      <input type="text" id="note" placeholder="What's this for?" />
+      <button onclick="addTransaction(true)">Money Coming In</button>
+      <button onclick="addTransaction(false)">Money Going Out</button>
+    </div>
+
+    <div id="transactionHistory"></div>
+  </body>
+</html>

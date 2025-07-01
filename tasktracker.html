@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Task Tracker</title>
+    <link rel="stylesheet" href="tasktracker.css" />
+    <meta charset="UTF-8" />
+    <script>
+      class Task {
+        constructor(subject, title, dueDate, prepDays, priority) {
+          this.subject = subject;
+          this.title = title;
+          this.dueDate = new Date(dueDate);
+          this.prepDays = parseInt(prepDays);
+          this.priority = parseInt(priority);
+        }
+      }
+
+      let subjects = [];
+      let tasks = [];
+
+      function addSubject() {
+        const s = document.getElementById("subjectInput").value.trim();
+        if (s && !subjects.includes(s)) {
+          subjects.push(s);
+          document.getElementById("subjectsList").innerText =
+            subjects.join(", ");
+          document.getElementById("subjectInput").value = "";
+        }
+      }
+
+      function addTask() {
+        const s = document.getElementById("taskSubject").value.trim();
+        const t = document.getElementById("taskName").value.trim();
+        const d = document.getElementById("dueDate").value;
+        const p = document.getElementById("daysPre").value;
+        const l = document.getElementById("importance").value;
+
+        if (!subjects.includes(s)) {
+          alert(
+            "Oops! You'll need to add that subject first before creating tasks for it."
+          );
+          return;
+        }
+
+        if (!t || !d || !p || !l) {
+          alert(
+            "Looks like you missed a field - please fill everything out so I can help you stay organized!"
+          );
+          return;
+        }
+
+        const due = new Date(d);
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        if (due <= now) {
+          alert(
+            "That date's already passed! Let's pick something in the future so you have time to prepare."
+          );
+          return;
+        }
+
+        if (l < 1 || l > 3) {
+          alert(
+            "Priority should be between 1-3 (with 1 being most important and 3 being least urgent)."
+          );
+          return;
+        }
+
+        const newTask = new Task(s, t, d, p, l);
+        tasks.push(newTask);
+        alert(
+          "Perfect! Your task has been saved. Hit 'Show My Schedule' whenever you're ready to see everything laid out."
+        );
+
+        // Clear input fields
+        document.getElementById("taskSubject").value = "";
+        document.getElementById("taskName").value = "";
+        document.getElementById("dueDate").value = "";
+        document.getElementById("daysPre").value = "";
+        document.getElementById("importance").value = "";
+      }
+
+      function showSummary() {
+        showDates();
+        showSubjects();
+      }
+
+      function showSubjects() {
+        const out = document.getElementById("subjectOutput");
+        const done = new Set();
+        let content = "<h2>What's Coming Up by Subject</h2>";
+
+        tasks.forEach((task) => {
+          const key = task.subject.toLowerCase();
+          if (!done.has(key)) {
+            const count = tasks.filter(
+              (t) => t.subject.toLowerCase() === key
+            ).length;
+            const taskWord = count === 1 ? "task" : "tasks";
+            content += `<strong>${task.subject} (${count} ${taskWord}):</strong><br/>`;
+            tasks.forEach((t) => {
+              if (t.subject.toLowerCase() === key) {
+                const priorityText =
+                  t.priority === 1
+                    ? "High priority"
+                    : t.priority === 2
+                    ? "Medium priority"
+                    : "Low priority";
+                content += `&nbsp;&nbsp;• ${t.title} (Due: ${
+                  t.dueDate.toISOString().split("T")[0]
+                }, ${priorityText})<br/>`;
+              }
+            });
+            content += "<br/>";
+            done.add(key);
+          }
+        });
+
+        out.innerHTML = content;
+      }
+
+      function showDates() {
+        const byDate = {};
+
+        tasks.forEach((task) => {
+          let start = new Date(task.dueDate);
+          start.setDate(start.getDate() - task.prepDays);
+          const end = new Date(task.dueDate);
+
+          while (start < end) {
+            const day = start.toISOString().split("T")[0];
+            if (!byDate[day]) byDate[day] = [];
+            byDate[day].push(`${task.title} (${task.subject})`);
+            start.setDate(start.getDate() + 1);
+          }
+        });
+
+        const out = document.getElementById("calendarOutput");
+        out.innerHTML = "<h2>Your Daily Prep Schedule</h2>";
+        const sortedDates = Object.keys(byDate).sort();
+
+        if (sortedDates.length === 0) {
+          out.innerHTML +=
+            "<p>No prep work scheduled yet - add some tasks to get started!</p>";
+          return;
+        }
+
+        sortedDates.forEach((d) => {
+          const date = new Date(d);
+          const options = { weekday: "short", month: "short", day: "numeric" };
+          const friendlyDate = date.toLocaleDateString("en-US", options);
+
+          out.innerHTML += `<strong>${friendlyDate} (${d}):</strong><br/>`;
+          byDate[d].forEach((t) => {
+            out.innerHTML += `&nbsp;&nbsp;• Work on ${t}<br/>`;
+          });
+          out.innerHTML += "<br/>";
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo"><strong>DormDesk</strong><br /></div>
+      <div class="top-bar">
+        <a href="index.html" class="top-link">Home</a>
+        <a href="tasktracker.html" class="top-link">Task Tracker</a>
+        <a href="coursetracker.html" class="top-link">Course Tracker</a>
+        <a href="fintracker.html" class="top-link">Finance Tracker</a>
+      </div>
+    </header>
+
+    <h1>Plan</h1>
+    <p>
+      Tired of scrambling to remember what's due when? This tool helps you dump
+      all your assignments in one spot and breaks them down into bite-sized
+      daily tasks. No more all-nighters or forgotten deadlines - just add your
+      stuff and let it figure out when you should work on what. Pretty handy for
+      keeping your academic life from turning into complete chaos.
+    </p>
+
+    <div>
+      <h3>Add a New Subject</h3>
+      <input
+        type="text"
+        id="subjectInput"
+        placeholder="What subject? (e.g., Math, History, Biology)"
+      />
+      <button onclick="addSubject()">Add Subject</button>
+      <p>Your subjects: <span id="subjectsList">None added yet</span></p>
+    </div>
+
+    <div>
+      <h3>Add a New Assignment</h3>
+      <input
+        type="text"
+        id="taskSubject"
+        placeholder="Which subject is this for?"
+      />
+      <input
+        type="text"
+        id="taskName"
+        placeholder="What's the assignment called?"
+      />
+      <input type="date" id="dueDate" />
+      <input
+        type="number"
+        id="daysPre"
+        placeholder="How many days do you need to prepare?"
+      />
+      <input
+        type="number"
+        id="importance"
+        placeholder="Priority: 1 (urgent) to 3 (can wait)"
+      />
+      <button onclick="addTask()">Add Assignment</button>
+    </div>
+
+    <div>
+      <button onclick="showSummary()">Show My Schedule</button>
+    </div>
+
+    <div id="calendarOutput"></div>
+    <div id="subjectOutput"></div>
+  </body>
+</html>

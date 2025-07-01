@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Class info</title>
+    <link rel="stylesheet" href="coursetracker.css" />
+    <meta charset="UTF-8" />
+    <script>
+      class ClassInfo {
+        constructor(name, professor, examDate, tasks, items, time, comments) {
+          this.name = name;
+          this.professor = professor;
+          this.examDate = examDate;
+          this.tasks = tasks;
+          this.items = items;
+          this.time = time;
+          this.comments = comments;
+        }
+      }
+
+      let classList = [];
+
+      function addClass() {
+        const name = document.getElementById("className").value.trim();
+        const prof = document.getElementById("professorName").value.trim();
+        const exam = document.getElementById("examDate").value;
+        const tasks = document.getElementById("classTasks").value.trim();
+        const items = document.getElementById("thingsToBring").value.trim();
+        const time = document.getElementById("classTime").value.trim();
+        const comments = document.getElementById("classComments").value.trim();
+
+        if (!name || !prof || !exam || !tasks || !items || !time || !comments) {
+          alert("Fill out everything to save your class info.");
+          return;
+        }
+
+        const newClass = new ClassInfo(
+          name,
+          prof,
+          exam,
+          tasks,
+          items,
+          time,
+          comments
+        );
+        classList.push(newClass);
+        alert("Class info saved!");
+
+        // Clear input fields
+        document.getElementById("className").value = "";
+        document.getElementById("professorName").value = "";
+        document.getElementById("examDate").value = "";
+        document.getElementById("classTasks").value = "";
+        document.getElementById("thingsToBring").value = "";
+        document.getElementById("classTime").value = "";
+        document.getElementById("classComments").value = "";
+      }
+
+      function showClasses() {
+        const out = document.getElementById("classOutput");
+        if (classList.length === 0) {
+          out.innerHTML = "<p>No classes saved yet.</p>";
+          return;
+        }
+
+        let content = "<h2>Your Classes</h2>";
+        classList.forEach((c, index) => {
+          content += `<strong>Class ${index + 1}: ${c.name}</strong><br/>`;
+          content += `&nbsp;&nbsp;• Professor: ${c.professor}<br/>`;
+          content += `&nbsp;&nbsp;• Exam Date: ${c.examDate}<br/>`;
+          content += `&nbsp;&nbsp;• Tasks: ${c.tasks}<br/>`;
+          content += `&nbsp;&nbsp;• Things to Bring: ${c.items}<br/>`;
+          content += `&nbsp;&nbsp;• Class Time: ${c.time}<br/>`;
+          content += `&nbsp;&nbsp;• Comments: ${c.comments}<br/><br/>`;
+        });
+
+        out.innerHTML = content;
+      }
+    </script>
+  </head>
+
+  <body>
+    <header>
+      <div class="logo"><strong>DormDesk</strong><br /></div>
+      <div class="top-bar">
+        <a href="index.html" class="top-link">Home</a>
+        <a href="tasktracker.html" class="top-link">Task Tracker</a>
+        <a href="coursetracker.html" class="top-link">Course Tracker</a>
+        <a href="fintracker.html" class="top-link">Finance Tracker</a>
+      </div>
+    </header>
+
+    <h1>Classes</h1>
+    <p>
+      Never forget important class details again. This simple tool lets you
+      store all your course information in one spot - professor names, exam
+      dates, upcoming assignments, what to bring to class, meeting times, and
+      any extra notes you want to remember. Just fill out the form, hit save,
+      and you're good to go. Perfect for staying organized throughout the
+      semester without the hassle of digging through syllabi or trying to
+      remember everything off the top of your head.
+    </p>
+
+    <div>
+      <h3>Add a Class</h3>
+      <input
+        type="text"
+        id="className"
+        placeholder="Class name (e.g., Biology 101)"
+      /><br /><br />
+      <input
+        type="text"
+        id="professorName"
+        placeholder="Professor's name"
+      /><br /><br />
+      <input type="date" id="examDate" /><br /><br />
+      <input
+        type="text"
+        id="classTasks"
+        placeholder="Upcoming tasks (comma separated)"
+      /><br /><br />
+      <input
+        type="text"
+        id="thingsToBring"
+        placeholder="Things to bring to class"
+      /><br /><br />
+      <input
+        type="text"
+        id="classTime"
+        placeholder="Class time (e.g., Mon & Wed 10:00 AM)"
+      /><br /><br />
+      <input
+        type="text"
+        id="classComments"
+        placeholder="Any comments or notes"
+      /><br /><br />
+      <button onclick="addClass()">Save Class Info</button>
+    </div>
+
+    <div>
+      <button onclick="showClasses()">Show All Classes</button>
+    </div>
+
+    <div id="classOutput"></div>
+  </body>
+</html>
